@@ -12,7 +12,7 @@ from random import shuffle
 import matplotlib
 import matplotlib.pyplot as plt; plt.close('all');
 import matplotlib.gridspec as gridspec
-from tqdm import tqdm
+from tqdm import tqdm # makes loops show smart progress meter
 
 import h5py
 import copy
@@ -25,10 +25,10 @@ import shutil
 from distutils.dir_util import copy_tree
 import importlib
 
-import lib.inputs as inputs
-import lib.loadsave as io
-import lib.plots as plots
-import lib.functions as fn
+import libraries.inputs as inputs
+import libraries.loadsave as io
+import libraries.plots as plots
+import libraries.functions as fn
 
 import init
 importlib.reload(init)  # make sure to load most recent init version

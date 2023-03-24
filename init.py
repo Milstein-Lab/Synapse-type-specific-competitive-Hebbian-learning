@@ -6,8 +6,8 @@ import os
 import importlib
 import numpy as np
 
-import lib.loadsave as io
-import lib.functions as fn
+import libraries.loadsave as io
+import libraries.functions as fn
 
 import config
 importlib.reload(config)  # make sure to load most recent config version
@@ -20,18 +20,18 @@ timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d--%H-
 save_path = "data/"+timestamp+"--"+short_description.replace(" ", "_")
 save_path_figures = save_path+'/figures'
 save_path_network = save_path+''
-save_path_lib = save_path+'/lib'
+save_path_libraries = save_path+'/libraries'
 
-for path in [save_path, save_path_figures, save_path_network, save_path_lib]:
+for path in [save_path, save_path_figures, save_path_network, save_path_libraries]:
     fn.create_directory(path)
 
 shutil.copy2("sim.py", save_path+"/sim.py")
 shutil.copy2("init.py", save_path+"/init.py")
 shutil.copy2("config.py", save_path+"/config.py")
-shutil.copy2("lib/inputs.py", save_path_lib+"/inputs.py")
-shutil.copy2("lib/functions.py", save_path_lib+"/functions.py")
-shutil.copy2("lib/loadsave.py", save_path_lib+"/loadsave.py")
-shutil.copy2("lib/plots.py", save_path_lib+"/plots.py")
+shutil.copy2("libraries/inputs.py", save_path_libraries+"/inputs.py")
+shutil.copy2("libraries/functions.py", save_path_libraries+"/functions.py")
+shutil.copy2("libraries/loadsave.py", save_path_libraries+"/loadsave.py")
+shutil.copy2("libraries/plots.py", save_path_libraries+"/plots.py")
 
 ##############################################################################
 

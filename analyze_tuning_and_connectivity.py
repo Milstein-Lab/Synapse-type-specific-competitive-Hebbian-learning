@@ -27,9 +27,9 @@ from distutils.dir_util import copy_tree
 import importlib.util
 
 # import lib.inputs as inputs  #should be loaded from specific simulation (see below)
-import lib.loadsave as io
-import lib.plots as plots
-import lib.functions as fn
+import libraries.loadsave as io
+import libraries.plots as plots
+import libraries.functions as fn
 
 np.seterr(all='raise')  # raise error in case of RuntimeWarning
 
@@ -42,7 +42,7 @@ dirs = os.listdir("data/")
 dates = np.char.ljust(dirs, 21) # get data string of subfolderds in 'data/' directory
 dates = np.char.replace(dates,'-', '')  # remove '-' separator
 dates[np.logical_not(np.char.isnumeric(dates))] = '0'  # set all non-numeric values to '0' to enable conversion
-load_path_network = "data/"+dirs[np.argmax(dates.astype(np.float))]  # convert dates + sim start times to number and pick dir with max number
+load_path_network = "data/"+dirs[np.argmax(dates.astype(float))]  # convert dates + sim start times to number and pick dir with max number
 
 # or set load path manually
 # load_path_network = '/folder'
@@ -50,7 +50,7 @@ load_path_network = "data/"+dirs[np.argmax(dates.astype(np.float))]  # convert d
 save_path_network = load_path_network  # save results to original sim data folder
 
 # load lib/inputs from original simulation
-spec = importlib.util.spec_from_file_location("inputs", load_path_network+"/lib/inputs.py")
+spec = importlib.util.spec_from_file_location("inputs", load_path_network+"/libraries/inputs.py")
 inputs = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(inputs)
 
