@@ -27,9 +27,9 @@ accuracy        = int(np.ceil(T / 10**4))          # monitor recording variables
 accuracy_states = accuracy * 40                    # monitor full network network every 'accuracy_states' iterations
 
 # number of excitatory neurons (N_pc), inhibitory neurons (N_pv), and input neurons (N_L4)
-N_pc = 10   # 80
-N_pv = 10    # 20
-N_L4 = 40     # 80
+N_pc = 80
+N_pv = 20
+N_L4 = 80
 
 # activation functions
 gain         = 0.04              # gain 'a' of activation function a(x-b)_+^n
@@ -37,13 +37,13 @@ bias         = 0                 # bias 'b' of activation function
 n_exp        = 2                 # exponent 'n' of activation function
 
 # Initialze weight norms of E and I synaptic weights same for all E/I neurons
-W_EE_norm = 2  # becomes non-zero during the simulation #original 0
-W_EI_norm = 2
-W_IE_norm = 0.8  # becomes non-zero during the simulation # original 0
-W_II_norm = 0.5
+W_EE_norm = 0.0  # becomes non-zero during the simulation
+W_EI_norm = 0.3
+W_IE_norm = 0.0  # becomes non-zero during the simulation
+W_II_norm = 0.35
 
-#W_EF_norm = 0.6
-#W_IF_norm = 0.85
+W_EF_norm = 0.6
+W_IF_norm = 0.85
 
 # membrane potential timescales
 e_x_pc       = 1/2  # corresponds to tau_E = 1/e_x_pc * Delta_t = 20ms, where Delta_t = 10ms
@@ -71,24 +71,24 @@ sigma_ori = 15      #stdv of preinitialized weight kernels.
 input_sigma = 12
 
 # maximum response of input cells at tuning peak
-input_amp = 35 #140
+input_amp = 140
 
 
 ##############################################################################
 # plasticity
 
 l_norm = 1  # choose L'n'-norm (L1, L2, ...)
-joint_norm = False  # normalize all excitatory and inhibitory inputs together #originally FALSE
+joint_norm = False  # normalize all excitatory and inhibitory inputs together
 lateral_norm = False  # normalize all input streams separately: feedforward excitation, lateral excitation, lateral inhibition
 
 # plasticity timescales
 e = 0.1 #2 #10
 
-e_w_EE       = e * 0.20  * 10**(-6)   # weight learning rate for excitatory connections onto excitatory neurons
-e_w_EI       = e * 0.30  * 10**(-6)   # weight learning rate for inhibitory connections onto excitatory neurons
+e_w_EE       = e * 0.10  * 10**(-7)   # weight learning rate for excitatory connections onto excitatory neurons
+e_w_EI       = e * 0.20  * 10**(-7)   # weight learning rate for inhibitory connections onto excitatory neurons
 
-e_w_IE       = e * 0.40  * 10**(-6)   # weight learning rate for excitatory connections onto inhibitory neurons
-e_w_II       = e * 0.50  * 10**(-6)   # weight learning rate for inhibitory connections onto inhibitory neurons
+e_w_IE       = e * 0.15  * 10**(-7)   # weight learning rate for excitatory connections onto inhibitory neurons
+e_w_II       = e * 0.25  * 10**(-7)   # weight learning rate for inhibitory connections onto inhibitory neurons
 
 # plasticity on/off switch of specific weight matrices
 e_w = 1  # EF
