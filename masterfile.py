@@ -1,4 +1,22 @@
 import click
+import os
+def read_from_yaml(file_path, Loader=None):
+    """
+    Import a python dict from .yaml
+    :param file_path: str (should end in '.yaml')
+    :param Loader: :class:'yaml.Loader'
+    :return: dict
+    """
+    import yaml
+    if Loader is None:
+        Loader = yaml.FullLoader
+    if os.path.isfile(file_path):
+        with open(file_path, 'r') as stream:
+            data = yaml.load(stream, Loader=Loader)
+        return data
+    else:
+        raise Exception('File: {} does not exist.'.format(file_path))
+
 
 @click.command()
 @click.option('--config_file_path', type=click.Path(exists=True), required=False, default='config/orig_config.yaml')
@@ -11,6 +29,7 @@ import click
 def main(config_file_path, data_file_path, plot, run_analysis, export, debug, run_sim):
     ##############################################################################################################################################################
     ##############################################################################################################################################################
+    config = read_from_yaml(config_file_path)
     # IMPORTS
     # from IPython.core.debugger import set_trace
     import numpy as np
