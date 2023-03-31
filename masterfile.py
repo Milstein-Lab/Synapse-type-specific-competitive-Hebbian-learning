@@ -1,4 +1,35 @@
+##############################################################################################################################################################
+##############################################################################################################################################################
+# IMPORTS
+# from IPython.core.debugger import set_trace
+import numpy as np
+from numpy.random import RandomState
+import scipy as sp
+from scipy import ndimage
+from random import shuffle
+import matplotlib
+import matplotlib.pyplot as plt;
+plt.close('all');
+import matplotlib.gridspec as gridspec
+from tqdm import tqdm  # makes loops show smart progress meter
+
+import h5py
+import copy
+import timeit
+import time
+import datetime
+import sys
+import os
+import shutil
+from distutils.dir_util import copy_tree
+import importlib
+
+import libraries.inputs as inputs
+import libraries.loadsave as io
+import libraries.plots as plots
+import libraries.functions as fn
 import click
+
 
 @click.command()
 @click.option('--config_file_path', type=click.Path(exists=True), required=False, default='config/orig_config.yaml')
@@ -9,36 +40,7 @@ import click
 @click.option('--debug', type=bool, default=False)
 @click.option('--run_sim', type=bool, default=True)
 def main(config_file_path, data_file_path, plot, run_analysis, export, debug, run_sim):
-    ##############################################################################################################################################################
-    ##############################################################################################################################################################
-    # IMPORTS
-    # from IPython.core.debugger import set_trace
-    import numpy as np
-    from numpy.random import RandomState
-    import scipy as sp
-    from scipy import ndimage
-    from random import shuffle
-    import matplotlib
-    import matplotlib.pyplot as plt;
-    plt.close('all');
-    import matplotlib.gridspec as gridspec
-    from tqdm import tqdm  # makes loops show smart progress meter
 
-    import h5py
-    import copy
-    import timeit
-    import time
-    import datetime
-    import sys
-    import os
-    import shutil
-    from distutils.dir_util import copy_tree
-    import importlib
-
-    import libraries.inputs as inputs
-    import libraries.loadsave as io
-    import libraries.plots as plots
-    import libraries.functions as fn
 
     import init
     importlib.reload(init)  # make sure to load most recent init version

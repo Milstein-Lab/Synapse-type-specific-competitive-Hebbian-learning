@@ -9,11 +9,12 @@ import numpy as np
 import libraries.loadsave as io
 import libraries.functions as fn
 
-if config_file_path:
-    import config_file_path
-    importlib.reload(config_file_path)  # make sure to load most recent config version
-    from config_file_path import *  # import config file
 
+def update_namespace(kwargs):
+    globals().update(kwargs)
+
+
+def initialize():
     timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d--%H-%M-%S')
 
     #-----------------------
@@ -285,3 +286,4 @@ if config_file_path:
                  W_hist_fine, K_hist_fine, P_hist_fine, M_hist_fine, Q_hist_fine, U_hist_fine]
     param = [e_x_pc, e_x_pv, e_y, e_w_EE, e_w_IE, e_w_EI, e_w_II,
              N_L4, N_pc, N_pv, input_amp, input_sigma]
+    globals().update(locals())
