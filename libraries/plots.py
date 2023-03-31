@@ -216,13 +216,11 @@ def connectivity_matrix(W, **kwargs):
             grid[0].set_ylabel(kwargs['ylabel'])
             grid[0].yaxis.set_label_coords(-0.12, 0.32)
 
-    if ('save_path' in kwargs):
+    if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
+        plt.show(block=False)
+    elif ('save_path' in kwargs):
         plt.savefig(kwargs['save_path'], bbox_inches='tight', dpi=300)
-    if ('show_plot' in kwargs):
-        if kwargs['show_plot'] == 1:
-            plt.show(block=False)
-        else:
-            plt.close()
+        plt.close()
     else:
         plt.close()
 
@@ -421,9 +419,13 @@ def line_plot(x_data, y_data, **kwargs):
         plt.gca().xaxis.set_label_coords(0.5, -0.02)
 
     # save and close fig
-    if ('save_path' in kwargs):
+    if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
+        plt.show(block=False)
+    elif ('save_path' in kwargs):
         plt.savefig(kwargs['save_path'], bbox_inches='tight', dpi=300)
-    plt.close()
+        plt.close()
+    else:
+        plt.close()
 
 
 ###############################################################################
@@ -564,6 +566,10 @@ def scatter_plot(x_data, y_data, **kwargs):
         plt.gca().set_yticklabels(kwargs['yticklabels'])
 
     # save and close fig
-    if ('save_path' in kwargs):
+    if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
+        plt.show(block=False)
+    elif ('save_path' in kwargs):
         plt.savefig(kwargs['save_path'], bbox_inches='tight', dpi=300)
-    plt.close()
+        plt.close()
+    else:
+        plt.close()

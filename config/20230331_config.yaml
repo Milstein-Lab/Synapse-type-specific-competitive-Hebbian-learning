@@ -16,7 +16,7 @@ run_analysis: 0  # analyse simulation results and produce plots
 ################################################################################
 # parameters
 
-T: !!float 1e7                 # number of simulated timesteps
+T: !!float 1e6                 # number of simulated timesteps
 T_seq: 20                  # length of one sequence - how long one orientation is presented. Corresponds to 200ms, since one iteration (Delta t) corresponds to 10ms .
 T_fine: !!float 1e4            # record network at single timestep resolution during the last 'T_fine' iterations of the simulation
 
