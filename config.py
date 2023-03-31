@@ -13,13 +13,13 @@ short_description ="sim - N8020"  # is included in folder name
 random_seed = 42
 
 online_saves = 0  # during simulation, periodically save all network weights
-run_analysis = 1  # analyse simulation results and produce plots
+run_analysis = 0  # analyse simulation results and produce plots
 
 
 ################################################################################
 # parameters
 
-T = 1*10**4                 # number of simulated timesteps
+T = 1*10**7                 # number of simulated timesteps
 T_seq = 20                  # length of one sequence - how long one orientation is presented. Corresponds to 200ms, since one iteration (Delta t) corresponds to 10ms .
 T_fine = 1*10**4            # record network at single timestep resolution during the last 'T_fine' iterations of the simulation
 
@@ -82,7 +82,7 @@ joint_norm = False  # normalize all excitatory and inhibitory inputs together
 lateral_norm = False  # normalize all input streams separately: feedforward excitation, lateral excitation, lateral inhibition
 
 # plasticity timescales
-e = 0.1 #2 #10
+e = .1 #2 #10
 
 e_w_EE       = e * 0.10  * 10**(-7)   # weight learning rate for excitatory connections onto excitatory neurons
 e_w_EI       = e * 0.20  * 10**(-7)   # weight learning rate for inhibitory connections onto excitatory neurons
