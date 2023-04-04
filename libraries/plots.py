@@ -208,7 +208,7 @@ def connectivity_matrix(W, **kwargs):
     cbar.set_ticks([0,np.max(vmax)])
     cbar.set_ticklabels(['0',r'$w^{\,AB}_{\text{max}}$'])
 
-    # title & labels
+    #title & labels
     if ('xlabel' in kwargs):
             grid[2].set_xlabel(kwargs['xlabel'])
             grid[2].xaxis.set_label_coords(0.72, -0.4)
@@ -216,13 +216,13 @@ def connectivity_matrix(W, **kwargs):
             grid[0].set_ylabel(kwargs['ylabel'])
             grid[0].yaxis.set_label_coords(-0.12, 0.32)
 
-    if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
-        plt.show(block=False)
-    elif ('save_path' in kwargs):
-        plt.savefig(kwargs['save_path'], bbox_inches='tight', dpi=300)
-        plt.close()
-    else:
-        plt.close()
+    # if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
+    #     plt.show(block=False)
+    # elif ('save_path' in kwargs):
+    #     plt.savefig(kwargs['save_path'], bbox_inches='tight', dpi=300)
+    #     plt.close()
+    # else:
+    #     plt.close()
 
 
 ###############################################################################
@@ -419,13 +419,13 @@ def line_plot(x_data, y_data, **kwargs):
         plt.gca().xaxis.set_label_coords(0.5, -0.02)
 
     # save and close fig
-    if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
-        plt.show(block=False)
-    elif ('save_path' in kwargs):
-        plt.savefig(kwargs['save_path'], bbox_inches='tight', dpi=300)
-        plt.close()
-    else:
-        plt.close()
+    # if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
+    #     plt.show(block=False)
+    # elif ('save_path' in kwargs):
+    #     plt.savefig(kwargs['save_path'], bbox_inches='tight', dpi=300)
+    #     plt.close()
+    # else:
+    #     plt.close()
 
 
 ###############################################################################
@@ -566,10 +566,10 @@ def scatter_plot(x_data, y_data, **kwargs):
         plt.gca().set_yticklabels(kwargs['yticklabels'])
 
     # save and close fig
-    if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
-        plt.show(block=False)
-    elif ('save_path' in kwargs):
-        plt.savefig(kwargs['save_path'], bbox_inches='tight', dpi=300)
-        plt.close()
-    else:
-        plt.close()
+    # if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
+    #     plt.show(block=False)
+    # elif ('save_path' in kwargs):
+    #     plt.savefig(kwargs['save_path'], bbox_inches='tight', dpi=300)
+    #     plt.close()
+    # else:
+    #     plt.close()
