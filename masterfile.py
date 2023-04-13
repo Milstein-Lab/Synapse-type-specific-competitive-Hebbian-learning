@@ -68,16 +68,17 @@ def main(config_file_path, train, load_data, data_file_path, plot, test, export,
          debug,interactive):
     """
 
-    :param config_file_path:
-    :param train:
-    :param load_data:
-    :param data_file_path:
-    :param plot:
-    :param test:
-    :param export:
-    :param export_file_name:
-    :param export_dir_path:
-    :param debug:
+    :param config_file_path: "path/to/yaml_file.yaml" (defaults to original config file)
+    :param train: train=False, not run training sim (defaults to True)
+    :param load_data: flag to load in existing data (no flag = False)
+    :param data_file_path: "path/to/datafile.p"
+    :param plot: flag to plot data in original graphs (no flag = False)
+    :param test: flag to run test (10,000 timesteps) (no flag = False)
+    :param export: flag to export trained data (no flag = False)
+    :param export_file_name: "NewDataFileName.p" (defaults to short_description.p)
+    :param export_dir_path: "path/to/data/export/folder"
+    :param debug: flag to return after loading yaml file and Network class (utils)
+    :param interactive: flag to save all global vars to work in Jupyter Notebook
     """
 
     config_dict = read_from_yaml(config_file_path)
