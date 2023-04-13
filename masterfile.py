@@ -63,7 +63,6 @@ def read_from_yaml(file_path, Loader=None):
 @click.option('--export_dir_path',type=click.Path(exists=True), required=False, default='data')
 @click.option('--debug', is_flag=True)
 @click.option('--interactive',is_flag=True)
-
 def main(config_file_path, train, load_data, data_file_path, plot, test, export, export_file_name, export_dir_path,
          debug,interactive):
     """
