@@ -10,15 +10,15 @@ short_description: "sim - N8020"  # is included in folder name
 
 random_seed: 42
 
-online_saves: 0  # during simulation, periodically save all network weights
+online_saves: 1  # during simulation, periodically save all network weights
 run_analysis: 0  # analyse simulation results and produce plots
 
 ################################################################################
 # parameters
 
-T: !!float 1e7                 # number of simulated timesteps
-T_seq: 20                  # length of one sequence - how long one orientation is presented. Corresponds to 200ms, since one iteration (Delta t) corresponds to 10ms .
-T_fine: !!float 1e4            # record network at single timestep resolution during the last 'T_fine' iterations of the simulation
+T_train: !!float 1e7                 # number of simulated timesteps
+T_seq_train: 20                  # length of one sequence - how long one orientation is presented. Corresponds to 200ms, since one iteration (Delta t) corresponds to 10ms .
+T_fine_train: !!float 1e4            # record network at single timestep resolution during the last 'T_fine' iterations of the simulation
 
 # number of excitatory neurons (N_pc), inhibitory neurons (N_pv), and input neurons (N_L4)
 N_pc: 80

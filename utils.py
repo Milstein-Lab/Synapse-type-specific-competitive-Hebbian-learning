@@ -30,58 +30,58 @@ import click
 
 
 class Network(object):
-    def __init__(self,short_description,random_seed,online_saves,run_analysis,T,T_seq,T_fine,N_pc,N_pv,N_L4,gain,bias,n_exp,
+    def __init__(self,short_description,random_seed,online_saves,run_analysis,T_train,T_seq_train,T_fine_train,N_pc,N_pv,N_L4,gain,bias,n_exp,
                  W_EE_norm,W_EI_norm,W_IE_norm,W_II_norm,W_EF_norm,W_IF_norm,e_x_pc_inv,e_x_pv_inv,e_y,std_W_EL,
                  std_W_IL,std_W_II,std_W_EI,std_W_IE,std_W_EE,tuned_init,sigma_ori,input_sigma,input_amp,l_norm,
                  joint_norm,lateral_norm,e,e_w,e_k,e_p,e_m,e_q,e_u, export=False, export_dir_path=None,
                  export_file_name=None):
         """
         This is what this class does.
-        :param short_description:
-        :param random_seed:
-        :param online_saves:
-        :param run_analysis:
-        :param T:
-        :param T_seq:
-        :param T_fine:
-        :param N_pc:
-        :param N_pv:
-        :param N_L4:
-        :param gain:
-        :param bias:
-        :param n_exp:
-        :param W_EE_norm:
-        :param W_EI_norm:
-        :param W_IE_norm:
-        :param W_II_norm:
+        :param short_description: file name
+        :param random_seed: sets random seed
+        :param online_saves: If ==1, during simulation, periodically save all network weights
+        :param run_analysis: analyse simulation results and produce plots (deprecated)
+        :param T_train: number of simulated timesteps
+        :param T_seq_train: length of one sequence - how long one orientation is presented. Corresponds to 200ms, since one iteration (Delta t) corresponds to 10ms .
+        :param T_fine_train: record network at single timestep resolution during the last 'T_fine' iterations of the simulation
+        :param N_pc: number of excitatory neurons
+        :param N_pv: number of inhibitory neurons
+        :param N_L4: number of input neurons
+        :param gain: gain 'a' of activation function a(x-b)_+^n
+        :param bias: bias 'b' of activation function
+        :param n_exp: exponent 'n' of activation function
+        :param W_EE_norm: initialze synaptic weight norms of E to E (becomes non-zero during simulation)
+        :param W_EI_norm: initialze synaptic weight norms of E to I
+        :param W_IE_norm: initialze synaptic weight norms of I to E (becomes non-zero during simulation)
+        :param W_II_norm: initialze synaptic weight norms of I to I
         :param W_EF_norm:
         :param W_IF_norm:
-        :param e_x_pc_inv:
-        :param e_x_pv_inv:
-        :param e_y:
-        :param std_W_EL:
-        :param std_W_IL:
-        :param std_W_II:
-        :param std_W_EI:
-        :param std_W_IE:
-        :param std_W_EE:
-        :param tuned_init:
-        :param sigma_ori:
-        :param input_sigma:
-        :param input_amp:
-        :param l_norm:
-        :param joint_norm:
-        :param lateral_norm:
-        :param e:
-        :param e_w:
-        :param e_k:
-        :param e_p:
-        :param e_m:
-        :param e_q:
-        :param e_u:
-        :param export:
-        :param export_dir_path:
-        :param export_file_name:
+        :param e_x_pc_inv: corresponds to tau_E = 1/e_x_pc * Delta_t = 20ms, where Delta_t = 10ms
+        :param e_x_pv_inv: corresponds to tau_I = 1/e_x_pv * Delta_t = 17ms, where Delta_t = 10ms
+        :param e_y: timescale of online exponential weighted average to track mean firing rates and variances
+        :param std_W_EL: initial weights drawn from half-normal distribution with following stds (L4->PC)
+        :param std_W_IL: initial weights drawn from half-normal distribution with following stds (L4->PV)
+        :param std_W_II: initial weights drawn from half-normal distribution with following stds (PV-|PV)
+        :param std_W_EI: initial weights drawn from half-normal distribution with following stds (PV-|PC)
+        :param std_W_IE: initial weights drawn from half-normal distribution with following stds (PC->PV)
+        :param std_W_EE: initial weights drawn from half-normal distribution with following stds (PC->PC)
+        :param tuned_init: boolean, initialize all weights already tuned and distributed across the stimulus space (for testing purposes only)
+        :param sigma_ori: stdv of preinitialized weight kernels
+        :param input_sigma: width of input cell's tuning curves
+        :param input_amp: maximum response of input cells at tuning peak
+        :param l_norm: choose L'n'-norm (L1, L2, ...)
+        :param joint_norm: normalize all excitatory and inhibitory inputs together
+        :param lateral_norm: normalize all input streams separately: feedforward excitation, lateral excitation, lateral inhibition
+        :param e: plasticity timescale multiplier
+        :param e_w: plasticity on/off switch of specific weight matrices EF
+        :param e_k: plasticity on/off switch of specific weight matrices IF
+        :param e_p: plasticity on/off switch of specific weight matrices II
+        :param e_m: plasticity on/off switch of specific weight matrices EI
+        :param e_q: plasticity on/off switch of specific weight matrices IE
+        :param e_u: plasticity on/off switch of specific weight matrices EE
+        :param export: flag, if true in click, export
+        :param export_dir_path: export file directory
+        :param export_file_name: export file name, defaults to short description
         """
         self.short_description = short_description
         self.export = export
@@ -96,9 +96,13 @@ class Network(object):
         self.random_seed = random_seed
         self.online_saves = online_saves
         self.run_analysis = run_analysis
-        self.T=int(T)
-        self.T_seq=T_seq
-        self.T_fine=int(T_fine)
+        self.T_train=int(T_train)
+        self.T = self.T_train
+
+        self.T_seq_train = T_seq_train
+        self.T_seq = self.T_seq_train
+        self.T_fine_train=int(T_fine_train)
+        self.T_fine = self.T_fine_train
 
         self.N_pc = N_pc
         self.N_pv = N_pv
@@ -416,6 +420,9 @@ class Network(object):
                  self.N_L4, self.N_pc, self.N_pv, self.input_amp, self.input_sigma]
 
     def train(self):
+        self.T = self.T_train
+        self.T_fine = self.T_fine_train
+        self.T_seq = self.T_seq_train
         self.start_time = time.time()
         self.print_time = 0  # needed for check how much time has passed since the last time progress has been printed
 
@@ -428,20 +435,21 @@ class Network(object):
                     self.y_L4 = inputs.get_input(self.N_L4, theta=self.orientation, sigma=self.input_sigma * np.pi / 180, amp=self.input_amp)
                 else:
                     self.y_L4 = inputs.get_input(self.N_L4, sigma=self.input_sigma * np.pi / 180, amp=self.input_amp)
-
+            # Average mean L4 input for timestep t:
+            # timescale of online exponential weighted average * (-current L4 input + new L4 input)
             self.y_mean_L4 += self.e_y * (-self.y_mean_L4 + self.y_L4)
 
-            self.x_e_pc = np.dot(self.W, self.y_L4) + np.dot(self.U, self.y_pc)
-            self.x_i_pc = np.dot(self.M, self.y_pv)
+            self.x_e_pc = np.dot(self.W, self.y_L4) + np.dot(self.U, self.y_pc) # EF + EE input
+            self.x_i_pc = np.dot(self.M, self.y_pv) # EI input
 
-            self.x_e_pv = np.dot(self.K, self.y_L4) + np.dot(self.Q, self.y_pc)
-            self.x_i_pv = np.dot(self.P, self.y_pv)
+            self.x_e_pv = np.dot(self.K, self.y_L4) + np.dot(self.Q, self.y_pc) # IF + IE input
+            self.x_i_pv = np.dot(self.P, self.y_pv) # II input
 
-            self.x_pc += self.e_x_pc * (-self.x_pc + self.x_e_pc - self.x_i_pc)
-            self.x_pv += self.e_x_pv * (-self.x_pv + self.x_e_pv - self.x_i_pv)
+            self.x_pc += self.e_x_pc * (-self.x_pc + self.x_e_pc - self.x_i_pc) # membrane timescale * total input onto excitatory cells (PC)
+            self.x_pv += self.e_x_pv * (-self.x_pv + self.x_e_pv - self.x_i_pv) # membrane timescale * total input on inhibitory cells (PV)
 
-            self.y_pc = self.a_pc * ((abs(self.x_pc) + self.x_pc) / 2) ** self.n_pc
-            self.y_pv = self.a_pv * ((abs(self.x_pv) + self.x_pv) / 2) ** self.n_pv
+            self.y_pc = self.a_pc * ((abs(self.x_pc) + self.x_pc) / 2) ** self.n_pc # total activation of all PC cells
+            self.y_pv = self.a_pv * ((abs(self.x_pv) + self.x_pv) / 2) ** self.n_pv # total activation of all PV cells
 
             ###############################################################################
 
@@ -466,7 +474,7 @@ class Network(object):
             self.Q += self.e_q * self.e_w_IE * np.outer(self.y_pv, self.y_pc)  # PC->PV
             self.U += self.e_u * self.e_w_EE * np.outer(self.y_pc, self.y_pc)  # PC->PC
 
-            # enforce Dale's law
+            # enforce Dale's law: a neuron transmits the same number of neurotransmitters at all of its postsyn connections
             self.W[self.W < 0] = 0  # L4->PC
             self.K[self.K < 0] = 0  # L4->PV
             self.P[self.P < 0] = 0  # PV-|PV
@@ -569,7 +577,7 @@ class Network(object):
                 self.W_EE_norms_hist_fine[ind] = self.W_EE_norms
                 self.y_pc_hist_fine[ind] = self.y_pc
                 self.y_mean_pc_hist_fine[ind] = self.y_mean_pc  # average pyramidal cell hist
-                self. y_var_pc_hist_fine[ind] = self.y_var_pc
+                self.y_var_pc_hist_fine[ind] = self.y_var_pc
                 self.y_0_pc_hist_fine[ind] = self.y_0_pc
 
                 self.x_pv_hist_fine[ind] = self.x_pv
@@ -625,7 +633,7 @@ class Network(object):
             if self.export_file_path is None:
                 raise Exception('Network.export_data: no export_file_path specified')
             export_file_path = self.export_file_path
-        io.save([self.network_states, self.hist, self.param], export_file_path)
+        io.save([self.network_states, self.hist, self.hist_fine, self.param], export_file_path)
         print("network saved to path: %s" % self.export_file_path)
 
     def load_data(self, data_file_path):
@@ -656,15 +664,25 @@ class Network(object):
          self.W_hist, self.K_hist, self.P_hist, self.M_hist, self.Q_hist, self.U_hist,
          self.W_norm_hist, self.K_norm_hist, self.P_norm_hist, self.M_norm_hist, self.Q_norm_hist, self.U_norm_hist] = self.loaded_data[1]
 
+        # load fine hist
+        [self.x_pc_hist_fine, self.x_e_pc_hist_fine, self.x_i_pc_hist_fine, self.x_e_mean_pc_hist_fine,self.x_i_mean_pc_hist_fine,
+         self.b_pc_hist_fine, self.a_pc_hist_fine, self.n_pc_hist_fine, self.W_EF_norms_hist_fine,self.W_EI_norms_hist_fine,
+         self.W_EE_norms_hist_fine, self.y_pc_hist_fine, self.y_mean_pc_hist_fine, self.y_var_pc_hist_fine,self.y_0_pc_hist_fine,
+         self.x_pv_hist_fine, self.x_e_pv_hist_fine, self.x_i_pv_hist_fine, self.x_e_mean_pv_hist_fine,
+         self.x_i_mean_pv_hist_fine,self.b_pv_hist_fine, self.a_pv_hist_fine, self.n_pv_hist_fine, self.W_IF_norms_hist_fine,
+         self.W_II_norms_hist_fine,self.W_IE_norms_hist_fine, self.y_pv_hist_fine, self.y_mean_pv_hist_fine, self.y_var_pv_hist_fine,
+         self.y_0_pv_hist_fine,self.y_L4_hist_fine,self.W_hist_fine, self.K_hist_fine, self.P_hist_fine, self.M_hist_fine, self.Q_hist_fine, self.U_hist_fine] =self.loaded_data[2]
+
         # load original network parameters
         [self.e_x_pc, self.e_x_pv, self.e_y, self.e_w_EE, self.e_w_IE, self.e_w_EI, self.e_w_II,
-         self.N_L4, self.N_pc, self.N_pv, self.input_amp, self.input_sigma] = self.loaded_data[2]
+         self.N_L4, self.N_pc, self.N_pv, self.input_amp, self.input_sigma] = self.loaded_data[3]
 
     def test(self):
 
         self.T_seq = 100  # how many iterations per stimulus
         self.n_probe = 100  # how many different stimuli to probe
         self.T = self.n_probe * self.T_seq
+        self.T_fine = self.T
 
         # Define some variables
 
@@ -770,7 +788,7 @@ class Network(object):
             ###############################################################################
             # record variables in every iterations
 
-            self.t_hist_fine[t] = self.t
+            self.t_hist_fine[t] = t
             self.theta_hist_fine[t] = self.orientation
 
             self.x_pc_hist_fine[t] = self.x_pc
