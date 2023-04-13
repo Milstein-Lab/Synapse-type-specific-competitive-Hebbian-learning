@@ -67,7 +67,6 @@ def read_from_yaml(file_path, Loader=None):
 def main(config_file_path, train, load_data, data_file_path, plot, test, export, export_file_name, export_dir_path,
          debug,interactive):
     """
-
     :param config_file_path: "path/to/yaml_file.yaml" (defaults to original config file)
     :param train: train=False, not run training sim (defaults to True)
     :param load_data: flag to load in existing data (no flag = False)
