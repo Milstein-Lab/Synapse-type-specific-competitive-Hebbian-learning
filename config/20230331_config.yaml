@@ -16,9 +16,9 @@ run_analysis: 0  # analyse simulation results and produce plots
 ################################################################################
 # parameters
 
-T: !!float 1e5                 # number of simulated timesteps
-T_seq: 20                  # length of one sequence - how long one orientation is presented. Corresponds to 200ms, since one iteration (Delta t) corresponds to 10ms .
-T_fine: !!float 1e4            # record network at single timestep resolution during the last 'T_fine' iterations of the simulation
+T_train: !!float 1e6                 # number of simulated timesteps
+T_seq_train: 20                  # length of one sequence - how long one orientation is presented. Corresponds to 200ms, since one iteration (Delta t) corresponds to 10ms .
+T_fine_train: !!float 1e4            # record network at single timestep resolution during the last 'T_fine' iterations of the simulation
 
 # number of excitatory neurons (N_pc), inhibitory neurons (N_pv), and input neurons (N_L4)
 N_pc: 80
@@ -68,7 +68,7 @@ input_amp: 140
 # plasticity
 
 l_norm: 1  # choose L'n'-norm (L1, L2, ...)
-joint_norm: False  # normalize all excitatory and inhibitory inputs together
+joint_norm: True  # normalize all excitatory and inhibitory inputs together
 lateral_norm: False  # normalize all input streams separately: feedforward excitation, lateral excitation, lateral inhibition
 
 # plasticity timescales

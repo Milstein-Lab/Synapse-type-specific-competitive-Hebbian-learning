@@ -33,6 +33,7 @@ import click
 
 from utils import *
 
+
 def read_from_yaml(file_path, Loader=None):
     """
     Import a python dict from .yaml
@@ -90,20 +91,24 @@ def main(config_file_path, train, load_data, data_file_path, plot, test, export,
 
     #SIM
 
-    if train:
-        network.train()
+    if test:
+        network.test()
+        if plot:
+            network.plot_test()
 
     if load_data:
         network.load_data(data_file_path)
+    elif train:
+        network.train()
 
     if test:
         network.test()
-
-    if plot:
-        network.plot_graphs()
+        if plot:
+            network.plot_test()
 
     if interactive:
         globals().update(locals())
+
 
 if __name__ == '__main__':
     main()

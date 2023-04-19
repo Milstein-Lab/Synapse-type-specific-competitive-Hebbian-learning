@@ -824,26 +824,26 @@ class Network(object):
 
         print("sim ready")
 
-    def plot_graphs(self):
+    def plot_test(self):
         # calculate tuning curves + E/I balance of all PV and PC cells
         # -------------------------------------
 
         # take average activity for each orientation (averaged over second half of trial T_seq to mitigate transient dynamics)
         self.x_e_pc_stim_avg = np.mean(
-            np.reshape(self.x_e_pc_hist_fine, (int(self.T / self.T_seq), self.T_seq, self.N_pc))[:, int(self.T_seq * 2 / 4):, :], axis=1)
+            np.reshape(self.x_e_pc_hist_fine, (int(self.T_fine / self.T_seq), self.T_seq, self.N_pc))[:, int(self.T_seq * 2 / 4):, :], axis=1)
         self.x_i_pc_stim_avg = np.mean(
-            np.reshape(self.x_i_pc_hist_fine, (int(self.T / self.T_seq), self.T_seq, self.N_pc))[:, int(self.T_seq * 2 / 4):, :], axis=1)
-        self.y_pc_stim_avg = np.mean(np.reshape(self.y_pc_hist_fine, (int(self.T / self.T_seq), self.T_seq, self.N_pc))[:, int(self.T_seq * 2 / 4):, :],
+            np.reshape(self.x_i_pc_hist_fine, (int(self.T_fine / self.T_seq), self.T_seq, self.N_pc))[:, int(self.T_seq * 2 / 4):, :], axis=1)
+        self.y_pc_stim_avg = np.mean(np.reshape(self.y_pc_hist_fine, (int(self.T_fine / self.T_seq), self.T_seq, self.N_pc))[:, int(self.T_seq * 2 / 4):, :],
                                 axis=1)
 
         self.x_e_pv_stim_avg = np.mean(
-            np.reshape(self.x_e_pv_hist_fine, (int(self.T / self.T_seq), self.T_seq, self.N_pv))[:, int(self.T_seq * 2 / 4):, :], axis=1)
+            np.reshape(self.x_e_pv_hist_fine, (int(self.T_fine / self.T_seq), self.T_seq, self.N_pv))[:, int(self.T_seq * 2 / 4):, :], axis=1)
         self.x_i_pv_stim_avg = np.mean(
-            np.reshape(self.x_i_pv_hist_fine, (int(self.T / self.T_seq), self.T_seq, self.N_pv))[:, int(self.T_seq * 2 / 4):, :], axis=1)
-        self.y_pv_stim_avg = np.mean(np.reshape(self.y_pv_hist_fine, (int(self.T / self.T_seq), self.T_seq, self.N_pv))[:, int(self.T_seq * 2 / 4):, :],
+            np.reshape(self.x_i_pv_hist_fine, (int(self.T_fine / self.T_seq), self.T_seq, self.N_pv))[:, int(self.T_seq * 2 / 4):, :], axis=1)
+        self.y_pv_stim_avg = np.mean(np.reshape(self.y_pv_hist_fine, (int(self.T_fine / self.T_seq), self.T_seq, self.N_pv))[:, int(self.T_seq * 2 / 4):, :],
                                 axis=1)
 
-        self.y_L4_stim_avg = np.mean(np.reshape(self.y_L4_hist_fine, (int(self.T / self.T_seq), self.T_seq, self.N_L4))[:, int(self.T_seq * 2 / 4):, :],
+        self.y_L4_stim_avg = np.mean(np.reshape(self.y_L4_hist_fine, (int(self.T_fine / self.T_seq), self.T_seq, self.N_L4))[:, int(self.T_seq * 2 / 4):, :],
                                 axis=1)
 
         self.y_limit = 1.1 * np.max([np.max(elem) for elem in [self.x_e_pc_stim_avg, self.x_i_pc_stim_avg, self.x_e_pv_stim_avg,
