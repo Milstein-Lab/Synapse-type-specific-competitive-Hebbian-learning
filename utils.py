@@ -350,6 +350,10 @@ class Network(object):
         self.norm_P = (np.sum(self.P ** self.l_norm, axis=1)) ** (1 / self.l_norm)  # II
 
         # after initialization, normalize input streams
+        # normalize all excitatory inputs (lateral and ffwd.) together
+        if self.joint_norm:
+            self.W_EE_norms = self.W_EE_norms + self.W_EF_norms
+            self.W_IE_norms = self.W_IE_norms + self.W_IF_norms
 
         # first establish feedforward and lateral weight norms as defined in config file (with small lateral E weights)
         self.W[self.norm_W != 0, :] *= (self.W_EF_norms[self.norm_W != 0, np.newaxis] / self.norm_W[self.norm_W != 0, np.newaxis])
@@ -367,24 +371,28 @@ class Network(object):
         self.norm_Q = (np.sum(self.Q ** self.l_norm, axis=1)) ** (1 / self.l_norm)  # IE
         self.norm_P = (np.sum(self.P ** self.l_norm, axis=1)) ** (1 / self.l_norm)  # II
 
-        # normalize all excitatory inputs (lateral and ffwd.) together
-        self.W_EE_norms = self.W_EE_norms + self.W_EF_norms
-        self.W_IE_norms = self.W_IE_norms + self.W_IF_norms
-
         self.norm_WU = (self.norm_W ** self.l_norm + self.norm_U ** self.l_norm) ** (1 / self.l_norm)  # EE
         self.norm_KQ = (self.norm_K ** self.l_norm + self.norm_Q ** self.l_norm) ** (1 / self.l_norm)  # IE
 
         # normalization of exciatory PC input
-        self.W *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis])
-        self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis])
+        if self.joint_norm:
+            self.W *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis])
+            self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis])
+        else:
+            self.W *= (self.W_EF_norms[:, np.newaxis] / self.norm_W[:, np.newaxis])
+            self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_U[:, np.newaxis])
 
         # normalization of inhibitory PC input
         self.M[self.norm_M != 0, :] *= (
                 self.W_EI_norms[self.norm_M != 0, np.newaxis] / self.norm_M[self.norm_M != 0, np.newaxis])  # do not scale 0-norm input
 
         # joint normalization of all exciatory PV input
-        self.K *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis])
-        self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis])
+        if self.joint_norm:
+            self.K *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis])
+            self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis])
+        else:
+            self.K *= (self.W_IF_norms[:, np.newaxis] / self.norm_K[:, np.newaxis])
+            self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_Q[:, np.newaxis])
 
         # normalization of inhibitory PV input
         self.P[self.norm_P != 0, :] *= (
@@ -455,7 +463,7 @@ class Network(object):
 
             # running averages and variances
             self.y_mean_pc_old = self.y_mean_pc
-            self. y_mean_pc += self.e_y * (-self.y_mean_pc + self.y_pc)
+            self.y_mean_pc += self.e_y * (-self.y_mean_pc + self.y_pc)
             self.y_var_pc += self.e_y * (-self.y_var_pc + (self.y_pc - self.y_mean_pc_old) * (self.y_pc - self.y_mean_pc))
             self.x_e_mean_pc += self.e_y * (-self.x_e_mean_pc + self.x_e_pc)
             self.x_i_mean_pc += self.e_y * (-self.x_i_mean_pc + self.x_i_pc)
@@ -494,16 +502,24 @@ class Network(object):
             self.norm_KQ = (self.norm_K ** self.l_norm + self.norm_Q ** self.l_norm) ** (1 / self.l_norm)  # IE
 
             # normalization of exciatory PC input
-            self.W *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis]) ** self.e_w
-            self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis]) ** self.e_u
+            if self.joint_norm:
+                self.W *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis]) ** self.e_w
+                self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis]) ** self.e_u
+            else:
+                self.W *= (self.W_EF_norms[:, np.newaxis] / self.norm_W[:, np.newaxis]) ** self.e_w
+                self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_U[:, np.newaxis]) ** self.e_u
 
             # normalization of inhibitory PC input
             self.M[self.norm_M != 0, :] *= (self.W_EI_norms[self.norm_M != 0, np.newaxis] / self.norm_M[
                 self.norm_M != 0, np.newaxis]) ** self.e_m  # do not scale 0-norm weight vectors
 
             # normalization of exciatory PV input
-            self.K *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis]) ** self.e_k
-            self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis]) ** self.e_q
+            if self.joint_norm:
+                self.K *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis]) ** self.e_k
+                self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis]) ** self.e_q
+            else:
+                self.K *= (self.W_IF_norms[:, np.newaxis] / self.norm_K[:, np.newaxis]) ** self.e_k
+                self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_Q[:, np.newaxis]) ** self.e_q
 
             # normalization of inhibitory PV input
             self.P[self.norm_P != 0, :] *= (self.W_II_norms[self.norm_P != 0, np.newaxis] / self.norm_P[
@@ -649,12 +665,6 @@ class Network(object):
         W_EF_norms = W_EE_norms
         W_IF_norms = W_IE_norms
         """
-        self.it = iter(np.arange(len(self.loaded_data[0][-1]) - 1) + 1)  # create iterator
-        self.net_dic = {"W": next(self.it), "K": next(self.it), "P": next(self.it), "M": next(self.it), "Q": next(self.it), "U": next(self.it),
-                   "a\_pc": next(self.it), "b\_pc": next(self.it), "d\_pc": next(self.it), "h\_pc": next(self.it), "y\_mean\_pc": next(self.it),
-                   "y\_var\_pc": next(self.it), "y\_0\_pc": next(self.it),
-                   "a\_pv": next(self.it), "b\_pv": next(self.it), "d\_pv": next(self.it), "h\_pv": next(self.it), "y\_mean\_pv": next(self.it),
-                   "y\_var\_pv": next(self.it), "y\_0\_pv": next(self.it)}
 
         # load original hist
         [self.x_pc_hist, self.x_e_pc_hist, self.x_i_pc_hist, self.x_e_mean_pc_hist, self.x_i_mean_pc_hist, self.b_pc_hist, self.a_pc_hist, self.n_pc_hist,
@@ -1069,11 +1079,12 @@ class Network(object):
 
         # plot feed forward weights before, during, and after training
         # -------------------------------------
-        self.W_hist = fn.extract_weight_hist(self.loaded_data[0], self.net_dic['W'], downSampleRatio=1)
-        self.K_hist = fn.extract_weight_hist(self.loaded_data[0], self.net_dic['K'], downSampleRatio=1)
+        # self.W_hist = fn.extract_weight_hist(self.loaded_data[0], self.net_dic['W'], downSampleRatio=1)
+        # self.K_hist = fn.extract_weight_hist(self.loaded_data[0], self.net_dic['K'], downSampleRatio=1)
 
         # PV ffwd weights
         # Plot K at end of simulation
+        """
         self.K = self.K_hist[-1, :, :]
         self.K = np.hstack((self.K, self.K[:, [0]]))
 
@@ -1126,4 +1137,5 @@ class Network(object):
                         random_colors=[['darkblue', 'blue', 'lightblue']], spine_visibility=[1, 0, 0, 0], yticks=[],
                         yticklabels=[], xticks=[0, 45, 90, 135, 180],
                         xticklabels=['', '$45^\circ$', '', '$135^\circ$', ''], ylabel=r'', xlabel='',title='W Init')
+        """
         plt.show()

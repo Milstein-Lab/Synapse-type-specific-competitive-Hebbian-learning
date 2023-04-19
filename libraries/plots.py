@@ -80,11 +80,12 @@ color_dict = {
 
 plt.rcParams['axes.prop_cycle'] = plt.cycler(color=[blue, red, green, orange, purple, yellow, lightblue, lightred, lightgreen, lightorange, lightpurple, lightyellow])
 
+
 TINY_SIZE = 6
 SMALL_SIZE = 8
 MEDIUM_SIZE = 10
 BIGGER_SIZE = 12
-
+"""
 plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
 plt.rc('figure', titlesize=MEDIUM_SIZE)  # fontsize of the figure title
 plt.rc('axes', titlesize=MEDIUM_SIZE)     # fontsize of the subfigure title
@@ -100,6 +101,7 @@ plt.rcParams['axes.xmargin'] = 0.001
 plt.rcParams['axes.ymargin'] = 0.001
 
 plt.rcParams["figure.figsize"] = [4.0/2.54, 3.2/2.54]  # figsize in inch, 1' = 2.54cm
+"""
 plot_linewidth = 1
 plt.rcParams['lines.linewidth'] = plot_linewidth   # linewidth of plotted lines
 
