@@ -96,15 +96,18 @@ def main(config_file_path, train, load_data, data_file_path, plot, test, export,
         if plot:
             network.plot_test()
 
-    if load_data:
-        network.load_data(data_file_path)
-    elif train:
-        network.train()
+    if load_data or train:
+        if load_data:
+            network.load_data(data_file_path)
+        elif train:
+            network.train()
+        if test:
+            network.test()
+            if plot:
+                network.plot_test()
 
-    if test:
-        network.test()
-        if plot:
-            network.plot_test()
+    if plot:
+        plt.show()
 
     if interactive:
         globals().update(locals())

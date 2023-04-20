@@ -1,0 +1,85 @@
+##############################################################################################################################################################
+##############################################################################################################################################################
+# YAML CONFIG
+
+#what is this simulation about
+short_description: "20230419"  # is included in folder name
+
+################################################################################
+# general
+
+random_seed: 42
+
+online_saves: 0  # during simulation, periodically save all network weights
+run_analysis: 0  # analyse simulation results and produce plots
+
+################################################################################
+# parameters
+
+T_train: !!float 1e6                 # number of simulated timesteps
+T_seq_train: 20                  # length of one sequence - how long one orientation is presented. Corresponds to 200ms, since one iteration (Delta t) corresponds to 10ms .
+T_fine_train: !!float 1e4            # record network at single timestep resolution during the last 'T_fine' iterations of the simulation
+
+# number of excitatory neurons (N_pc), inhibitory neurons (N_pv), and input neurons (N_L4)
+N_pc: 80
+N_pv: 20
+N_L4: 80
+
+# activation functions
+gain: 0.04              # gain 'a' of activation function a(x-b)_+^n
+bias: 0                 # bias 'b' of activation function
+n_exp: 2                # exponent 'n' of activation function
+
+# Initialze weight norms of E and I synaptic weights same for all E/I neurons
+W_EE_norm: 0.0  # becomes non-zero during the simulation
+W_EI_norm: 0.6
+W_IE_norm: 1.7  # becomes non-zero during the simulation
+W_II_norm: 0.7
+
+W_EF_norm: 1.2
+W_IF_norm: 0.0
+
+# membrane potential timescales
+e_x_pc_inv: 2            # corresponds to tau_E = 1/e_x_pc * Delta_t = 20ms, where Delta_t = 10ms
+e_x_pv_inv: 1.7          # corresponds to tau_I = 1/e_x_pv * Delta_t = 17ms, where Delta_t = 10ms
+e_y: !!float 1e-4      # timescale of online exponential weighted average to track mean firing rates and variances
+
+# initial weights drawn from half-normal distribution with following stds
+std_W_EL: 0.1     # (L4->PC)
+std_W_IL: 0.1     # (L4->PV)
+std_W_II: 0.0001  # (PV-|PV)
+std_W_EI: 0.0001  # (PV-|PC)
+std_W_IE: 0.0001  # (PC->PV)
+std_W_EE: 0.0001  # (PC->PC)
+
+# initialize tuned weights
+tuned_init: False  # initialize all weights already tuned and distributed across the stimulus space (for testing purposes only)
+sigma_ori: 15      #stdv of preinitialized weight kernels.
+
+##############################################################################
+# input
+
+# width of input cell's tuning curves
+input_sigma: 12
+# maximum response of input cells at tuning peak
+input_amp: 140
+
+##############################################################################
+# plasticity
+
+l_norm: 1  # choose L'n'-norm (L1, L2, ...)
+joint_norm: False  # normalize all excitatory and inhibitory inputs together
+lateral_norm: False  # normalize all input streams separately: feedforward excitation, lateral excitation, lateral inhibition
+
+# plasticity timescales
+e: .1 #2 #10
+
+# plasticity on/off switch of specific weight matrices
+e_w: 1  # EF
+e_k: 1  # IF
+e_p: 1  # II
+e_m: 1  # EI
+e_q: 1  # IE
+e_u: 1  # EE
+
+##############################################################################

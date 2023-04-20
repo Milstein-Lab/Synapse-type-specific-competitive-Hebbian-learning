@@ -374,25 +374,29 @@ class Network(object):
         self.norm_WU = (self.norm_W ** self.l_norm + self.norm_U ** self.l_norm) ** (1 / self.l_norm)  # EE
         self.norm_KQ = (self.norm_K ** self.l_norm + self.norm_Q ** self.l_norm) ** (1 / self.l_norm)  # IE
 
-        # normalization of exciatory PC input
+        # normalization of excitatory PC input
         if self.joint_norm:
-            self.W *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis])
-            self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis])
+            self.W[self.norm_WU != 0, :] *= \
+                (self.W_EE_norms[self.norm_WU != 0, np.newaxis] / self.norm_WU[self.norm_WU != 0, np.newaxis])
+            self.U[self.norm_WU != 0, :] *= \
+                (self.W_EE_norms[self.norm_WU != 0, np.newaxis] / self.norm_WU[self.norm_WU != 0, np.newaxis])
         else:
-            self.W *= (self.W_EF_norms[:, np.newaxis] / self.norm_W[:, np.newaxis])
-            self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_U[:, np.newaxis])
+            self.W[self.norm_W != 0, :] *= \
+                (self.W_EF_norms[self.norm_W != 0, np.newaxis] / self.norm_W[self.norm_W != 0, np.newaxis])
+            self.U[self.norm_U != 0, :] *= \
+                (self.W_EE_norms[self.norm_U != 0, np.newaxis] / self.norm_U[self.norm_U != 0, np.newaxis])
 
         # normalization of inhibitory PC input
         self.M[self.norm_M != 0, :] *= (
                 self.W_EI_norms[self.norm_M != 0, np.newaxis] / self.norm_M[self.norm_M != 0, np.newaxis])  # do not scale 0-norm input
 
-        # joint normalization of all exciatory PV input
+        # joint normalization of all excitatory PV input
         if self.joint_norm:
-            self.K *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis])
-            self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis])
+            self.K[self.norm_KQ != 0, :] *= (self.W_IE_norms[self.norm_KQ != 0, np.newaxis] / self.norm_KQ[self.norm_KQ != 0, np.newaxis])
+            self.Q[self.norm_KQ != 0, :] *= (self.W_IE_norms[self.norm_KQ != 0, np.newaxis] / self.norm_KQ[self.norm_KQ != 0, np.newaxis])
         else:
-            self.K *= (self.W_IF_norms[:, np.newaxis] / self.norm_K[:, np.newaxis])
-            self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_Q[:, np.newaxis])
+            self.K[self.norm_K != 0, :] *= (self.W_IF_norms[self.norm_K != 0, np.newaxis] / self.norm_K[self.norm_K != 0, np.newaxis])
+            self.Q[self.norm_Q != 0, :] *= (self.W_IE_norms[self.norm_Q != 0, np.newaxis] / self.norm_Q[self.norm_Q != 0, np.newaxis])
 
         # normalization of inhibitory PV input
         self.P[self.norm_P != 0, :] *= (
@@ -501,25 +505,39 @@ class Network(object):
             self.norm_WU = (self.norm_W ** self.l_norm + self.norm_U ** self.l_norm) ** (1 / self.l_norm)  # EE
             self.norm_KQ = (self.norm_K ** self.l_norm + self.norm_Q ** self.l_norm) ** (1 / self.l_norm)  # IE
 
-            # normalization of exciatory PC input
+            # normalization of excitatory PC input
             if self.joint_norm:
-                self.W *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis]) ** self.e_w
-                self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_WU[:, np.newaxis]) ** self.e_u
+                self.W[self.norm_WU != 0, :] *= \
+                    (self.W_EE_norms[self.norm_WU != 0, np.newaxis] / self.norm_WU[self.norm_WU != 0, np.newaxis]) \
+                    ** self.e_w
+                self.U[self.norm_WU != 0, :] *= \
+                    (self.W_EE_norms[self.norm_WU != 0, np.newaxis] / self.norm_WU[self.norm_WU != 0, np.newaxis]) \
+                    ** self.e_u
             else:
-                self.W *= (self.W_EF_norms[:, np.newaxis] / self.norm_W[:, np.newaxis]) ** self.e_w
-                self.U *= (self.W_EE_norms[:, np.newaxis] / self.norm_U[:, np.newaxis]) ** self.e_u
+                self.W[self.norm_W != 0, :] *= \
+                    (self.W_EF_norms[self.norm_W != 0, np.newaxis] / self.norm_W[self.norm_W != 0, np.newaxis]) \
+                    ** self.e_w
+                self.U[self.norm_U != 0, :] *= \
+                    (self.W_EE_norms[self.norm_U != 0, np.newaxis] / self.norm_U[self.norm_U != 0, np.newaxis]) \
+                    ** self.e_u
 
             # normalization of inhibitory PC input
             self.M[self.norm_M != 0, :] *= (self.W_EI_norms[self.norm_M != 0, np.newaxis] / self.norm_M[
                 self.norm_M != 0, np.newaxis]) ** self.e_m  # do not scale 0-norm weight vectors
 
-            # normalization of exciatory PV input
+            # normalization of excitatory PV input
             if self.joint_norm:
-                self.K *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis]) ** self.e_k
-                self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_KQ[:, np.newaxis]) ** self.e_q
+                self.K[self.norm_KQ != 0, :] *= (self.W_IE_norms[self.norm_KQ != 0, np.newaxis] / self.norm_KQ[
+                    self.norm_KQ != 0, np.newaxis]) ** self.e_k
+                self.Q[self.norm_KQ != 0, :] *= (self.W_IE_norms[self.norm_KQ != 0, np.newaxis] / self.norm_KQ[
+                    self.norm_KQ != 0, np.newaxis]) ** self.e_q
             else:
-                self.K *= (self.W_IF_norms[:, np.newaxis] / self.norm_K[:, np.newaxis]) ** self.e_k
-                self.Q *= (self.W_IE_norms[:, np.newaxis] / self.norm_Q[:, np.newaxis]) ** self.e_q
+                self.K[self.norm_K != 0, :] *= (
+                            self.W_IF_norms[self.norm_K != 0, np.newaxis] / self.norm_K[self.norm_K != 0, np.newaxis]) \
+                                               ** self.e_k
+                self.Q[self.norm_Q != 0, :] *= (
+                            self.W_IE_norms[self.norm_Q != 0, np.newaxis] / self.norm_Q[self.norm_Q != 0, np.newaxis]) \
+                                               ** self.e_q
 
             # normalization of inhibitory PV input
             self.P[self.norm_P != 0, :] *= (self.W_II_norms[self.norm_P != 0, np.newaxis] / self.norm_P[
@@ -932,7 +950,14 @@ class Network(object):
         # -------------------------------------
         self.x_data = [np.mean(self.theta_delta_pc, axis=0) * 180 / np.pi, np.mean(self.theta_delta_pv, axis=0) * 180 / np.pi]
         self.y_data = [np.mean(self.y_pc_stim_avg_centered, axis=1), np.mean(self.y_pv_stim_avg_centered, axis=1)]
-        self.y_data = [self.y_data[0] / np.max(self.y_data[0]), self.y_data[1] / np.max(self.y_data[1])]  # normalize
+        # self.y_data = [self.y_data[0] / np.max(self.y_data[0]), self.y_data[1] / np.max(self.y_data[1])]  # normalize
+        y_data = []
+        for data in self.y_data:
+            max_val = np.max(data)
+            if max_val > 0:
+                data /= max_val
+            y_data.append(data)
+        self.y_data = y_data
         plots.line_plot(
             self.x_data,
             self.y_data,
@@ -1138,4 +1163,13 @@ class Network(object):
                         yticklabels=[], xticks=[0, 45, 90, 135, 180],
                         xticklabels=['', '$45^\circ$', '', '$135^\circ$', ''], ylabel=r'', xlabel='',title='W Init')
         """
-        plt.show()
+        fig_dynamic = plt.figure()
+        y_pc_dynamics = np.reshape(self.y_pc_hist_fine, (self.n_probe, self.T_seq, self.N_pc))
+        y_pv_dynamics = np.reshape(self.y_pv_hist_fine, (self.n_probe, self.T_seq, self.N_pv))
+        plt.plot(np.mean(np.mean(y_pc_dynamics, axis=0), axis=1), label='PC')
+        plt.plot(np.mean(np.mean(y_pv_dynamics, axis=0), axis=1), label='PV')
+        plt.xlabel('Time steps')
+        plt.ylabel('Mean activity')
+        plt.title('Mean activity dynamics')
+        plt.legend(loc='best', frameon=False)
+        fig_dynamic.show()
