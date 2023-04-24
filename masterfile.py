@@ -33,7 +33,6 @@ import click
 
 from utils import *
 
-
 def read_from_yaml(file_path, Loader=None):
     """
     Import a python dict from .yaml
@@ -94,7 +93,7 @@ def main(config_file_path, train, load_data, data_file_path, plot, test, export,
     if test:
         network.test()
         if plot:
-            network.plot_test()
+            network.plot_test(label='Before Training')
 
     if load_data or train:
         if load_data:
@@ -104,7 +103,7 @@ def main(config_file_path, train, load_data, data_file_path, plot, test, export,
         if test:
             network.test()
             if plot:
-                network.plot_test()
+                network.plot_test(label='After Training')
 
     if plot:
         plt.show()

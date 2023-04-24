@@ -842,7 +842,7 @@ class Network(object):
 
         print("sim ready")
 
-    def plot_test(self):
+    def plot_test(self, label):
         # calculate tuning curves + E/I balance of all PV and PC cells
         # -------------------------------------
 
@@ -929,7 +929,7 @@ class Network(object):
         plots.line_plot(self.x_data,self.y_data,colors=['blue', 'red'],linestyles=['--', '--'],labels=[r'$x_E$', r'$x_I$'],yticks=[0, 1],
                         y_max=1,y_min=0,ytickslabels=['0', '1'],xticks=[-90, -45, 0, 45, 90],
                         xticklabels=['', r'$-45^{\circ}$', r'$0^{\circ}$', r'$45^{\circ}$', ''], xlabel=r'$\Delta \theta$',
-                        ylabel=r'Input to E (norm.)', figsize=[2.5, 2.0], title='Average E-I Tuning (PC)')
+                        ylabel=r'Input to E (norm.)', figsize=[2.5, 2.0], title='%s\nAverage E-I Tuning (PC)' % label)
 
         # plot average E and I input to an I neuron
         # -------------------------------------
@@ -944,7 +944,7 @@ class Network(object):
             # yticklabels= ['0','','','','1'],
             y_max=1,y_min=0,ytickslabels=['0', '1'],xticks=[-90, -45, 0, 45, 90],xticklabels=['', r'$-45^{\circ}$', r'$0^{\circ}$', r'$45^{\circ}$', ''],
             xlabel=r'$\Delta \theta$',ylabel=r'Input to I (norm.)',
-            figsize=[2.5, 2.0],title='Average E-I Tuning (PV)')
+            figsize=[2.5, 2.0],title='%s\nAverage E-I Tuning (PV)' % label)
 
         # plot average tuning curves - compare PV,PC firing rate tuning
         # -------------------------------------
@@ -974,7 +974,7 @@ class Network(object):
             xticklabels=['', r'$-45^{\circ}$', r'$0^{\circ}$', r'$45^{\circ}$', ''],
             xlabel=r'$\Delta \theta$',
             ylabel=r'Firing rate (norm.)',
-            figsize=[2.5, 2.0],title='Average Firing Rate Tuning (PC/PV')
+            figsize=[2.5, 2.0],title='%s\nAverage Firing Rate Tuning (PC/PV' % label)
 
         idx = self.sorted_pc_ids[int(self.N_pc / 2)]  # get neuron that is closest tuned to 90 degrees
         self.data = [self.x_i_pc_stim_avg[:, idx]]
@@ -998,7 +998,7 @@ class Network(object):
             spine_visibility=[1, 0, 0, 0],
             xlabel=r'$\theta$',
             ylabel=r'Inhib. input',
-            figsize=[2.5, 2.0],title='Inhibitory Input Composition (PC)')
+            figsize=[2.5, 2.0],title='%s\nInhibitory Input Composition (PC)' % label)
 
         # plot connectivity matrices (sorted PV/PC)
         # -------------------------------------
@@ -1041,7 +1041,7 @@ class Network(object):
             xticklabels=['', r'$-45^{\circ}$', r'$0^{\circ}$', r'$45^{\circ}$', ''],
             xlabel=r'$\Delta \theta$',
             ylabel=r'syn. weight',
-            legend=True, title='Connectivity Kernels (PC)')
+            legend=True, title='%s\nConnectivity Kernels (PC)' % label)
 
         # PV
         self.delta_theta_K = self.L4_tuning_peak - self.pv_tuning_peak[:, np.newaxis]
@@ -1062,7 +1062,7 @@ class Network(object):
             xticklabels=['', r'$-45^{\circ}$', r'$0^{\circ}$', r'$45^{\circ}$', ''],
             xlabel=r'$\Delta \theta$',
             ylabel=r'syn. weight',
-            legend=True, title='Connectivity Kernels (PV)')
+            legend=True, title='%s\nConnectivity Kernels (PV)' %label)
 
         #   plot recurrent kernels
         # -------------------------------------
@@ -1100,7 +1100,7 @@ class Network(object):
             y_max=1.5,
             xlabel=r'$\Delta \theta$',
             ylabel=r'Syn. weight (norm.)',
-            figsize=[2.5, 2.0], title='Recurrent Connectivity Kernels')
+            figsize=[2.5, 2.0], title='%s\nRecurrent Connectivity Kernels' % label)
 
         # plot feed forward weights before, during, and after training
         # -------------------------------------
@@ -1163,6 +1163,7 @@ class Network(object):
                         yticklabels=[], xticks=[0, 45, 90, 135, 180],
                         xticklabels=['', '$45^\circ$', '', '$135^\circ$', ''], ylabel=r'', xlabel='',title='W Init')
         """
+        # Test: Population Dynamics
         fig_dynamic = plt.figure()
         y_pc_dynamics = np.reshape(self.y_pc_hist_fine, (self.n_probe, self.T_seq, self.N_pc))
         y_pv_dynamics = np.reshape(self.y_pv_hist_fine, (self.n_probe, self.T_seq, self.N_pv))
@@ -1171,5 +1172,51 @@ class Network(object):
         plt.xlabel('Time steps')
         plt.ylabel('Mean activity')
         plt.title('Mean activity dynamics')
+        plt.suptitle(label)
         plt.legend(loc='best', frameon=False)
         fig_dynamic.show()
+
+        # IMSHOW INPUT Population Activity
+        fig_input_activity = plt.figure()
+        plt.imshow(self.y_L4_hist_fine[:, :].T, aspect='auto', interpolation='none')
+        plt.colorbar()
+        plt.title('L4 Input Firing')
+        plt.suptitle(label)
+        plt.xlabel('Timestep')
+        plt.ylabel('Input Neuron')
+        fig_input_activity.show()
+
+        # IMSHOW PC Population Activity
+        fig_PC_activity = plt.figure()
+        peak_locs = np.argmax(self.y_pc_hist_fine[:, :], axis=0)
+        pc_sorted_indexes = np.argsort(peak_locs)
+        plt.imshow(self.y_pc_hist_fine[:, pc_sorted_indexes].T, aspect='auto', interpolation='none')
+        plt.colorbar()
+        plt.title('PC Output Firing')
+        plt.suptitle(label)
+        plt.xlabel('Timestep')
+        plt.ylabel('PC Neuron')
+        fig_PC_activity.show()
+
+        # IMSHOW PV Population Activity
+        fig_PV_activity = plt.figure()
+        peak_locs = np.argmax(self.y_pv_hist_fine[:, :], axis=0)
+        pv_sorted_indexes = np.argsort(peak_locs)
+        plt.imshow(self.y_pv_hist_fine[:, pv_sorted_indexes].T, aspect='auto', interpolation='none')
+        plt.colorbar()
+        plt.title('PV Output Firing')
+        plt.suptitle(label)
+        plt.xlabel('Timestep')
+        plt.ylabel('PV Neuron')
+        fig_PV_activity.show()
+
+        # Weights
+        fig_weights = plt.figure()
+        plt.imshow(self.W[pc_sorted_indexes, :], aspect='auto', interpolation='none')
+        plt.colorbar()
+        plt.title('Weights')
+        plt.suptitle(label)
+        plt.xlabel('Input Weight')
+        plt.ylabel('Output Weight')
+        fig_weights.show()
+
