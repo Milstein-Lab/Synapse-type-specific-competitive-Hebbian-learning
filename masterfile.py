@@ -33,6 +33,7 @@ import click
 
 from utils import *
 
+
 def read_from_yaml(file_path, Loader=None):
     """
     Import a python dict from .yaml

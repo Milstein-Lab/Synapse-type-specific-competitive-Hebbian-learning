@@ -30,7 +30,7 @@ gain: 0.04              # gain 'a' of activation function a(x-b)_+^n
 bias: 0                 # bias 'b' of activation function
 n_exp: 2                # exponent 'n' of activation function
 
-# Initialze weight norms of E and I synaptic weights same for all E/I neurons
+# Initialize weight norms of E and I synaptic weights same for all E/I neurons
 W_EE_norm: 0.0  # becomes non-zero during the simulation
 W_EI_norm: 0.3
 W_IE_norm: 0.0  # becomes non-zero during the simulation

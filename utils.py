@@ -1163,10 +1163,23 @@ class Network(object):
                         yticklabels=[], xticks=[0, 45, 90, 135, 180],
                         xticklabels=['', '$45^\circ$', '', '$135^\circ$', ''], ylabel=r'', xlabel='',title='W Init')
         """
+
+        orientations = np.reshape(self.theta_hist_fine, (self.n_probe, self.T_seq))[:, 0] / np.pi * 180.
+        y_pc_dynamics = np.reshape(self.y_pc_hist_fine, (self.n_probe, self.T_seq, self.N_pc))
+        y_pc_stim_mean = np.mean(y_pc_dynamics[:, int(self.T_seq / 2):, :], axis=1)
+        pc_peak_locs = np.argmax(y_pc_stim_mean, axis=0)
+        pc_sorted_indexes = np.argsort(pc_peak_locs)
+        y_pv_dynamics = np.reshape(self.y_pv_hist_fine, (self.n_probe, self.T_seq, self.N_pv))
+        y_pv_stim_mean = np.mean(y_pv_dynamics[:, int(self.T_seq / 2):, :], axis=1)
+        pv_peak_locs = np.argmax(y_pv_stim_mean, axis=0)
+        pv_sorted_indexes = np.argsort(pv_peak_locs)
+        y_L4_dynamics = np.reshape(self.y_L4_hist_fine, (self.n_probe, self.T_seq, self.N_L4))
+        y_L4_stim_mean = np.mean(y_L4_dynamics[:, int(self.T_seq / 2):, :], axis=1)
+        L4_peak_locs = np.argmax(y_L4_stim_mean, axis=0)
+        L4_sorted_indexes = np.argsort(L4_peak_locs)
+
         # Test: Population Dynamics
         fig_dynamic = plt.figure()
-        y_pc_dynamics = np.reshape(self.y_pc_hist_fine, (self.n_probe, self.T_seq, self.N_pc))
-        y_pv_dynamics = np.reshape(self.y_pv_hist_fine, (self.n_probe, self.T_seq, self.N_pv))
         plt.plot(np.mean(np.mean(y_pc_dynamics, axis=0), axis=1), label='PC')
         plt.plot(np.mean(np.mean(y_pv_dynamics, axis=0), axis=1), label='PV')
         plt.xlabel('Time steps')
@@ -1178,35 +1191,33 @@ class Network(object):
 
         # IMSHOW INPUT Population Activity
         fig_input_activity = plt.figure()
-        plt.imshow(self.y_L4_hist_fine[:, :].T, aspect='auto', interpolation='none')
+        plt.imshow(y_L4_stim_mean.T, aspect='auto', interpolation='none', extent=(0, 180., self.N_L4, 0))
         plt.colorbar()
         plt.title('L4 Input Firing')
         plt.suptitle(label)
-        plt.xlabel('Timestep')
+        plt.xlabel('Orientation')
         plt.ylabel('Input Neuron')
         fig_input_activity.show()
 
         # IMSHOW PC Population Activity
         fig_PC_activity = plt.figure()
-        peak_locs = np.argmax(self.y_pc_hist_fine[:, :], axis=0)
-        pc_sorted_indexes = np.argsort(peak_locs)
-        plt.imshow(self.y_pc_hist_fine[:, pc_sorted_indexes].T, aspect='auto', interpolation='none')
+        plt.imshow(y_pc_stim_mean[:, pc_sorted_indexes].T, aspect='auto', interpolation='none',
+                   extent=(0, 180., self.N_pc, 0))
         plt.colorbar()
         plt.title('PC Output Firing')
         plt.suptitle(label)
-        plt.xlabel('Timestep')
+        plt.xlabel('Orientation')
         plt.ylabel('PC Neuron')
         fig_PC_activity.show()
 
         # IMSHOW PV Population Activity
         fig_PV_activity = plt.figure()
-        peak_locs = np.argmax(self.y_pv_hist_fine[:, :], axis=0)
-        pv_sorted_indexes = np.argsort(peak_locs)
-        plt.imshow(self.y_pv_hist_fine[:, pv_sorted_indexes].T, aspect='auto', interpolation='none')
+        plt.imshow(y_pv_stim_mean[:, pv_sorted_indexes].T, aspect='auto', interpolation='none',
+                   extent=(0, 180., self.N_pv, 0))
         plt.colorbar()
         plt.title('PV Output Firing')
         plt.suptitle(label)
-        plt.xlabel('Timestep')
+        plt.xlabel('Orientation')
         plt.ylabel('PV Neuron')
         fig_PV_activity.show()
 
@@ -1216,7 +1227,7 @@ class Network(object):
         plt.colorbar()
         plt.title('Weights')
         plt.suptitle(label)
-        plt.xlabel('Input Weight')
-        plt.ylabel('Output Weight')
+        plt.xlabel('L4 neuron ID')
+        plt.ylabel('PC neuron ID')
         fig_weights.show()
 
