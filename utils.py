@@ -7,6 +7,7 @@ from random import shuffle
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from tqdm import tqdm  # makes loops show smart progress meter
 
 import pickle
@@ -28,6 +29,22 @@ import libraries.plots as plots
 import init
 import click
 
+def read_from_yaml(file_path, Loader=None):
+    """
+    Import a python dict from .yaml
+    :param file_path: str (should end in '.yaml')
+    :param Loader: :class:'yaml.Loader'
+    :return: dict
+    """
+    import yaml
+    if Loader is None:
+        Loader = yaml.FullLoader
+    if os.path.isfile(file_path):
+        with open(file_path, 'r') as stream:
+            data = yaml.load(stream, Loader=Loader)
+        return data
+    else:
+        raise Exception('File: {} does not exist.'.format(file_path))
 
 class Network(object):
     def __init__(self,short_description,random_seed,online_saves,run_analysis,T_train,T_seq_train,T_fine_train,N_pc,N_pv,N_L4,gain,bias,n_exp,
@@ -1014,7 +1031,7 @@ class Network(object):
 
         self.vmax = np.max([np.max(elem) for elem in [self.U, self.Q, self.P, self.M]])
 
-        plots.connectivity_matrix([self.U_sorted, self.M_sorted, self.Q_sorted, self.P_sorted], xlabel=r'pre', ylabel=r'post')
+        plots.connectivity_matrix([self.U_sorted, self.M_sorted, self.Q_sorted, self.P_sorted], xlabel=r'pre', ylabel=r'post', label=label)
 
         # plot connectivity kernels as function of tuning difference between pre- and postsynaptic neurons
         # -------------------------------------
@@ -1177,57 +1194,120 @@ class Network(object):
         y_L4_stim_mean = np.mean(y_L4_dynamics[:, int(self.T_seq / 2):, :], axis=1)
         L4_peak_locs = np.argmax(y_L4_stim_mean, axis=0)
         L4_sorted_indexes = np.argsort(L4_peak_locs)
-
+        fig_dynamics, ax = plt.subplots(2, 2)
         # Test: Population Dynamics
-        fig_dynamic = plt.figure()
-        plt.plot(np.mean(np.mean(y_pc_dynamics, axis=0), axis=1), label='PC')
-        plt.plot(np.mean(np.mean(y_pv_dynamics, axis=0), axis=1), label='PV')
-        plt.xlabel('Time steps')
-        plt.ylabel('Mean activity')
-        plt.title('Mean activity dynamics')
-        plt.suptitle(label)
-        plt.legend(loc='best', frameon=False)
-        fig_dynamic.show()
+
+        ax[0,0].plot(np.mean(np.mean(y_pc_dynamics, axis=0), axis=1), label='PC')
+        ax[0,0].plot(np.mean(np.mean(y_pv_dynamics, axis=0), axis=1), label='PV')
+        ax[0,0].set_xlabel('Time steps')
+        ax[0,0].set_ylabel('Mean activity')
+        ax[0,0].set_title('Mean activity dynamics')
+        ax[0,0].legend(loc='best', frameon=False)
 
         # IMSHOW INPUT Population Activity
-        fig_input_activity = plt.figure()
-        plt.imshow(y_L4_stim_mean.T, aspect='auto', interpolation='none', extent=(0, 180., self.N_L4, 0))
-        plt.colorbar()
-        plt.title('L4 Input Firing')
-        plt.suptitle(label)
-        plt.xlabel('Orientation')
-        plt.ylabel('Input Neuron')
-        fig_input_activity.show()
+        im2=ax[0,1].imshow(y_L4_stim_mean.T, aspect='auto', interpolation='none', extent=(0, 180., self.N_L4, 0))
+        ax[0,1].set_title('L4 Input Firing')
+        ax[0,1].set_xlabel('Orientation')
+        ax[0,1].set_ylabel('Input Neuron')
+        divider = make_axes_locatable(ax[0, 1])
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        fig_dynamics.colorbar(im2, cax=cax, orientation='vertical')
+
+
 
         # IMSHOW PC Population Activity
-        fig_PC_activity = plt.figure()
-        plt.imshow(y_pc_stim_mean[:, pc_sorted_indexes].T, aspect='auto', interpolation='none',
+        im3=ax[1,0].imshow(y_pc_stim_mean[:, pc_sorted_indexes].T, aspect='auto', interpolation='none',
                    extent=(0, 180., self.N_pc, 0))
-        plt.colorbar()
-        plt.title('PC Output Firing')
-        plt.suptitle(label)
-        plt.xlabel('Orientation')
-        plt.ylabel('PC Neuron')
-        fig_PC_activity.show()
+        ax[1,0].set_title('PC Output Firing')
+        ax[1,0].set_xlabel('Orientation')
+        ax[1,0].set_ylabel('PC Neuron')
+        divider = make_axes_locatable(ax[1,0])
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        fig_dynamics.colorbar(im3, cax=cax, orientation='vertical')
+
 
         # IMSHOW PV Population Activity
-        fig_PV_activity = plt.figure()
-        plt.imshow(y_pv_stim_mean[:, pv_sorted_indexes].T, aspect='auto', interpolation='none',
+        im4=ax[1,1].imshow(y_pv_stim_mean[:, pv_sorted_indexes].T, aspect='auto', interpolation='none',
                    extent=(0, 180., self.N_pv, 0))
-        plt.colorbar()
-        plt.title('PV Output Firing')
-        plt.suptitle(label)
-        plt.xlabel('Orientation')
-        plt.ylabel('PV Neuron')
-        fig_PV_activity.show()
+        ax[1,1].set_title('PV Output Firing')
+        ax[1,1].set_xlabel('Orientation')
+        ax[1,1].set_ylabel('PV Neuron')
+        divider = make_axes_locatable(ax[1, 1])
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        fig_dynamics.colorbar(im4, cax=cax, orientation='vertical')
+
+        fig_dynamics.suptitle(label)
+        fig_dynamics.tight_layout()
+        fig_dynamics.show()
 
         # Weights
-        fig_weights = plt.figure()
-        plt.imshow(self.W[pc_sorted_indexes, :], aspect='auto', interpolation='none')
-        plt.colorbar()
-        plt.title('Weights')
-        plt.suptitle(label)
-        plt.xlabel('L4 neuron ID')
-        plt.ylabel('PC neuron ID')
+        fig_weights, ax = plt.subplots(2,3)
+
+        im1=ax[0,0].imshow(self.W[pc_sorted_indexes, :][:, L4_sorted_indexes], aspect='auto', interpolation='none')
+        ax[0,0].set_title('EF Weights')
+        # #ax1.set_suptitle(label)
+        #ax[0,0].set_xlabel('L4 neuron ID')
+        ax[0,0].set_ylabel('PC neuron ID')
+        divider = make_axes_locatable(ax[0,0])
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        fig_weights.colorbar(im1, cax=cax, orientation='vertical')
+
+        im2=ax[1,0].imshow(self.K[pv_sorted_indexes,:][:,L4_sorted_indexes], aspect='auto', interpolation='none')
+        #ax2.colorbar()
+        ax[1,0].set_title('IF Weights')
+        # #ax2.suptitle(label)
+        ax[1,0].set_xlabel('L4 neuron ID')
+        ax[1,0].set_ylabel('PV neuron ID')
+        divider = make_axes_locatable(ax[1,0])
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        fig_weights.colorbar(im2, cax=cax, orientation='vertical')
+
+        im3=ax[0,1].imshow(self.U[pc_sorted_indexes,:][:,pc_sorted_indexes], aspect='auto', interpolation='none')
+        #plt.colorbar()
+        ax[0,1].set_title('EE Weights')
+        #plt.suptitle(label)
+        #ax[0,1].set_xlabel('PC neuron ID')
+        #ax[0,1].set_ylabel('PC neuron ID')
+        divider = make_axes_locatable(ax[0, 1])
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        fig_weights.colorbar(im3, cax=cax, orientation='vertical')
+
+        im4=ax[0,2].imshow(self.M[pc_sorted_indexes,:][:,pv_sorted_indexes], aspect='auto', interpolation='none')
+        #plt.colorbar()
+        ax[0,2].set_title('EI Weights')
+        #plt.suptitle(label)
+        #ax[0,2].set_xlabel('PV neuron ID')
+        #ax[0,2].set_ylabel('PC neuron ID')
+        divider = make_axes_locatable(ax[0, 2])
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        fig_weights.colorbar(im4, cax=cax, orientation='vertical')
+
+        im5=ax[1,1].imshow(self.Q[pv_sorted_indexes,:][:,pc_sorted_indexes], aspect='auto', interpolation='none')
+        #plt.colorbar()
+        ax[1,1].set_title('IE Weights')
+        #plt.suptitle(label)
+        ax[1,1].set_xlabel('PC neuron ID')
+        #ax[1,1].set_ylabel('PV neuron ID')
+        divider = make_axes_locatable(ax[1, 1])
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        fig_weights.colorbar(im5, cax=cax, orientation='vertical')
+
+        im6=ax[1,2].imshow(self.P[pv_sorted_indexes,:][:,pv_sorted_indexes], aspect='auto', interpolation='none')
+        #plt.colorbar()
+        ax[1,2].set_title('II Weights')
+        #plt.suptitle(label)
+        ax[1,2].set_xlabel('PV neuron ID')
+        #ax[1,2].set_ylabel('PV neuron ID')
+        divider = make_axes_locatable(ax[1, 2])
+        cax = divider.append_axes('right', size='5%', pad=0.05)
+        fig_weights.colorbar(im6, cax=cax, orientation='vertical')
+
+        fig_weights.suptitle('%s\nWeights' % label)
+        fig_weights.tight_layout()
         fig_weights.show()
+
+
+
+
+
 

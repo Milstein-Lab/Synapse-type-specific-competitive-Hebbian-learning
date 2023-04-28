@@ -217,6 +217,8 @@ def connectivity_matrix(W, **kwargs):
     if ('ylabel' in kwargs):
             grid[0].set_ylabel(kwargs['ylabel'])
             grid[0].yaxis.set_label_coords(-0.12, 0.32)
+    if ('label' in kwargs):
+        plt.suptitle(kwargs['label'])
 
     # if ('show_plot' in kwargs) and kwargs['show_plot'] == 1:
     #     plt.show(block=False)

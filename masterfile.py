@@ -32,25 +32,7 @@ import init
 import click
 
 from utils import *
-
-
-def read_from_yaml(file_path, Loader=None):
-    """
-    Import a python dict from .yaml
-    :param file_path: str (should end in '.yaml')
-    :param Loader: :class:'yaml.Loader'
-    :return: dict
-    """
-    import yaml
-    if Loader is None:
-        Loader = yaml.FullLoader
-    if os.path.isfile(file_path):
-        with open(file_path, 'r') as stream:
-            data = yaml.load(stream, Loader=Loader)
-        return data
-    else:
-        raise Exception('File: {} does not exist.'.format(file_path))
-
+import utils as ut
 
 @click.command()
 @click.option('--config_file_path', type=click.Path(exists=True), required=False, default='config/orig_config.yaml')
@@ -80,7 +62,7 @@ def main(config_file_path, train, load_data, data_file_path, plot, test, export,
     :param interactive: flag to save all global vars to work in Jupyter Notebook
     """
 
-    config_dict = read_from_yaml(config_file_path)
+    config_dict = ut.read_from_yaml(config_file_path)
     network = Network(**config_dict, export=export, export_dir_path=export_dir_path, export_file_name=export_file_name)
 
     if debug:
